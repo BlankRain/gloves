@@ -13,3 +13,20 @@ val r = lines.filter(_ != "").map(x => {
   // 5 ,6 ,7各自一类
   println(r.keys)
   println(rc)
+
+val rcr=r.map({
+    case (x,y) if x<=4 =>("AC",y)
+    case (x,y) if x==5 =>("BC",y)
+    case (x,y) if x==6 =>("CC",y)
+    case (x,y) if x==7 =>("DC",y)
+  }).foreach(x=>{
+    writeUtf8(s"./${x._1.toString}.txt"){
+      x._2.sortWith(_._2>_._2)
+    }
+  })
+
+def writeUtf8(fileName: String)(d: List[Any]): Unit = {
+    val out = new PrintStream(new FileOutputStream(new File(fileName), true), true, "utf8")
+    out.println(d.mkString("\n"))
+    out.close()
+  }
