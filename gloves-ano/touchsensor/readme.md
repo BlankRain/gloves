@@ -14,5 +14,5 @@
     文件: ./touchsensor.ino
 
 3. TODO:
--   信号处理,事件提取. (with Rx.js ~)
--   大数据分析 (with Cloud~)
+    -   信号处理,事件提取. (with Rx.js ~)
+    -   大数据分析 (with Cloud~)
