@@ -1,38 +1,39 @@
-import time
+#coding=utf-8
+"""
+触摸信号处理
+"""
 import serial
-import rx
 from rx.subjects import Subject
-from rx import Observable, Observer
-ser = serial.Serial(  
-  port='COM3',
-  baudrate=9600,
-  parity=serial.PARITY_ODD,
-  stopbits=serial.STOPBITS_TWO,
-  bytesize=serial.SEVENBITS
+from rx import  Observer
+SER = serial.Serial(
+    baudrate=9600,
+    parity=serial.PARITY_ODD,
+    port='COM3',
+    stopbits=serial.STOPBITS_TWO,
+    bytesize=serial.SEVENBITS
 )
 
-# 暗夜守望者
+
 class WatcherInNight(Observer):
+    """
+    暗夜守望者
+    """
     def on_next(self, x):
-        print("Got: %s" % x)
-        
+        print "Got: %s" % x
     def on_error(self, e):
-        print("Got error: %s" % e)
-        
+        print "Got error: %s" % e
     def on_completed(self):
-        print("Sequence completed")
+        print "Sequence completed"
 
 
-print("hi,felix~")
+print "hi,felix~"
 # 坠入爱河
-loveStream = Subject()
-#d = stream.subscribe(lambda x: print("Got: %s" % x))
+LOVE_STREAM = Subject()
 
-d= loveStream.subscribe(WatcherInNight())
+LOVE = LOVE_STREAM.subscribe(WatcherInNight())
 
-while ser.isOpen():
-  loveStream.on_next(ser.readline())
-  
-print("Complete~~")
-d.dispose()
+while SER.isOpen():
+    LOVE_STREAM.on_next(SER.readline())
+print "Complete~~"
+LOVE.dispose()
 
