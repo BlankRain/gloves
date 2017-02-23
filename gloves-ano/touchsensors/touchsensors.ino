@@ -15,7 +15,11 @@ struct TouchBar{
     int barState;
     long lastTime; //long lastTime;// 50天会溢出一次~
 } allBars[]={
-  {"A1",2,13,0},{"B1",4,13,0} // 嗯,所有键放这里.
+  {"Zi",2,13,0},
+  {"We",3,12,0},
+  {"Wo",4,11,0},
+  {"Ai",5,10,0},
+  {"Ni",6,9,0} // 嗯,所有键放这里.
   };
 
 long maxSilentTime=8*100;//沉默时间.
@@ -112,4 +116,4 @@ bool watchBarState(struct TouchBar touchbar,int x){
       digitalWrite(touchbar.watchport,LOW);
       }
    return true;
-  }
+   }
