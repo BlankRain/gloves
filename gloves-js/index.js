@@ -1,13 +1,13 @@
 var stompit = require('stompit');
-
+console.log("good Job")
 var connectOptions = {
   'host': 'localhost',
-  'port': 61613,
-  'connectHeaders':{
-    'host': '/',
-    'login': 'username',
-    'passcode': 'password',
-    'heart-beat': '5000,5000'
+  'port': 1883
+  ,'connectHeaders':{
+    // 'host': '/',
+    // 'login': 'username',
+    // 'passcode': 'password',
+    // 'heart-beat': '5000,5000'
   }
 };
 
@@ -18,17 +18,9 @@ stompit.connect(connectOptions, function(error, client) {
     return;
   }
 
-  var sendHeaders = {
-    'destination': '/queue/test',
-    'content-type': 'text/plain'
-  };
-
-  var frame = client.send(sendHeaders);
-  frame.write('hello');
-  frame.end();
 
   var subscribeHeaders = {
-    'destination': '/queue/test',
+    'destination': 'glove/touch/event',
     'ack': 'client-individual'
   };
 
