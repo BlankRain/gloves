@@ -25,7 +25,39 @@ var source=Rx.Observable
         }else{
             return { topic: "glove/touch/event", message: t ,type:watchSource['type']};
         }
-    });
+    }).share();
+var createOnclickStream=(keyCode)=>{
+    return { key:keyCode,
+             stream:source
+            .filter((topicAndMessagePair)=>{
+                const m=topicAndMessagePair.message.split(',')
+                return m[6]==keyCode && (m[3]==true)
+            })
+            .map((topicAndMessagePair)=>{
+                return topicAndMessagePair.message
+            })}}
+var createOnLongPushStream=(keyCode,seconds)=>{
+    return {    key:keyCode,
+                stream:createOnclickStream(keyCode).stream
+                .debounce(seconds*1000)
+    }
+}
+/**
+ * keyCode array ,please.
+ * 同时按下
+ */
+var createBothClickStream=(keyCodes,period) =>{
+    const x=keyCodes.map((x,i)=>createOnclickStream(x)).map((x,i)=>x.stream)
+    return x.reduce((x,y)=>{return x.combineLatest(y)}).filter((msgseq)=>{
+        const m0=msgseq[0].split(",")
+        const m1=msgseq[1].split(",")
+        return Math.abs(m0[4]-m1[4])<(period||50);
+    }).map((msgseq)=>{
+        const m0=msgseq[0].split(",")
+        const m1=msgseq[1].split(",")
+        return {keys:[m0[6],m1[6]]  ,time:m0[4]}
+    })
+}
 
 const fiveGods ="紫薇我爱你"
 const PORT={2:0,3:1,4:2,5:3,6:4}
@@ -34,17 +66,19 @@ source.subscribe(
         const m=x.message.split(",")
         // console.log(m)  ==>[ '1', 'Continue', '801', '0', '418233', '6', 'Ni' ]
         const whatIsay=fiveGods[PORT[m[5]]]
-        console.info(`${whatIsay} ${m[6]}`);
-        },
-    (err)=> { console.log('Error: ' + err); },
-    () =>{ console.log('Completed'); })
-
-source.subscribe(
-    (x)=> {
-        // console.log('OOO: foo -' + x.topic + ', bar -' + x.message);
+        // console.info(`${whatIsay} ${m[6]}`);
         },
     (err)=> { console.log('Error: ' + err); },
     () =>{ console.log('Completed'); })
 
 
+/**
+ *  
+ */
+// createOnclickStream('We').stream.subscribe((x)=>{  console.log(`${x} onclick`)})
 
+// createOnLongPushStream('We',1.5).stream.subscribe((x)=>{  console.log(`${x} ---------long push`)})
+
+createBothClickStream(["Zi","We"]).subscribe((x)=>{
+    console.log(`${JSON.stringify(x)} ---------zip push`)
+});
