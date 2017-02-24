@@ -18,7 +18,7 @@ function hostPortSource(){
 }
 
 const watchSource=process.argv[2] !='mqtt'? hostPortSource():mqttSource();
-var source=Rx.Observable
+const source=Rx.Observable
     .fromEvent(watchSource['source'],watchSource['onevent'],(t,m)=>{
         if(watchSource['type']=='mqtt'){
             return { topic: t, message: m ,type:watchSource['type']};
@@ -26,7 +26,7 @@ var source=Rx.Observable
             return { topic: "glove/touch/event", message: t ,type:watchSource['type']};
         }
     }).share();
-var createOnclickStream=(keyCode)=>{
+const createOnclickStream=(keyCode)=>{
     return { key:keyCode,
              stream:source
             .filter((topicAndMessagePair)=>{
@@ -36,17 +36,22 @@ var createOnclickStream=(keyCode)=>{
             .map((topicAndMessagePair)=>{
                 return topicAndMessagePair.message
             })}}
-var createOnLongPushStream=(keyCode,seconds)=>{
+/**
+ *  长按
+ */
+const createOnLongPushStream=(keyCode,seconds)=>{
     return {    key:keyCode,
                 stream:createOnclickStream(keyCode).stream
-                .debounce(seconds*1000)
+                .bufferWithTime(seconds*1000)
+                .filter(x=>x.length>=2)
+                // .takeLastWithTime(seconds*1000)
     }
 }
 /**
  * keyCode array ,please.
  * 同时按下
  */
-var createBothClickStream=(keyCodes,period) =>{
+const createOnBothClickStream=(keyCodes,period) =>{
     const x=keyCodes.map((x,i)=>createOnclickStream(x)).map((x,i)=>x.stream)
     return x.reduce((x,y)=>{return x.combineLatest(y)}).filter((msgseq)=>{
         const m0=msgseq[0].split(",")
@@ -77,8 +82,10 @@ source.subscribe(
  */
 // createOnclickStream('We').stream.subscribe((x)=>{  console.log(`${x} onclick`)})
 
-// createOnLongPushStream('We',1.5).stream.subscribe((x)=>{  console.log(`${x} ---------long push`)})
+createOnLongPushStream('We',1.5).stream.subscribe((x)=>{  console.log(`${JSON.stringify(x)} ---------long push`)
+                ,(e)=>{console.log(e)}
+                ,(c)=>{console.log("Completed")}})
 
-createBothClickStream(["Zi","We"]).subscribe((x)=>{
-    console.log(`${JSON.stringify(x)} ---------zip push`)
+createOnBothClickStream(["Zi","We"]).subscribe((x)=>{
+    console.log(`${JSON.stringify(x)} ---------both click`)
 });
